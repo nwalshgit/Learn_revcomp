@@ -1,8 +1,9 @@
+'''This is the revcomp module
+   
+'''
+
 def verify(sequence):
     '''This code verifies if a sequence is a DNA or RNA'''
-    if "U" in sequence:
-        return "RNA"
-    return "DNA"
     # set the input sequence
     seq = set(sequence)
      
@@ -22,8 +23,8 @@ def verify(sequence):
 def rev_comp_1(seq):
     '''This function returns a reverse complement
     of a DNA or RNA strand'''
-    #verified = verify(seq)
-    if "T" in seq: #verified == "DNA":
+    verified = verify(seq)
+    if verified == "DNA":
        
         # complement strand
         seq = seq.replace("A", "t").replace(
@@ -34,18 +35,18 @@ def rev_comp_1(seq):
         seq = seq[::-1]
         return seq
  
-    #elif verified == "RNA":
+    elif verified == "RNA":
        
         # complement strand
-    seq = seq.replace("A", "u").replace(
+        seq = seq.replace("A", "u").replace(
             "C", "g").replace("U", "a").replace("G", "c")
-    seq = seq.upper()
+        seq = seq.upper()
          
         # reverse strand
-    seq = seq[::-1]
-    return seq
-    #else:
-    #    return "Invalid sequence"
+        seq = seq[::-1]
+        return seq
+    else:
+        return "Invalid sequence"
  
 def rev_comp_2(seq):
      comp = []
@@ -117,29 +118,56 @@ def rev_comp_5(seq):
     return bases
     
 
+nucleotide_ambiguity_table = {
+    'N': {'A','C','G','T'}, # aNy
+    'R': {'A',    'G',   }, # puRine
+    'Y': {    'C',    'T'}, # pYrimidine
+    'K': {        'G','T'}, # Keto
+    'M': {'A','C'        }, # aMino
+    'S': {    'C','G'    }, # Strong
+    'W': {'A',        'T'}, # Weak
+    'B': {    'C','G','T'}, # Not A
+    'D': {'A',    'G','T'}, # Not C
+    'H': {'A','C',    'T'}, # Not G
+    'V': {'A','C','G'    }, # Not T/U
+}
 dna_table = str.maketrans("ACGTMRWSYKVHDBN acgtmrwsykvhdbn","TGCAKYWSRMBDHVN tgcakywsrmbdhvn")
 rna_table = str.maketrans("ACGUMRWSYKVHDBN acgumrwsykvhdbn","UGCAKYWSRMBDHVN ugcakywsrmbdhvn")
-def rev_comp_6(seq, seqtype=None):
+def rev_comp_6(seq: str, seqtype: str='DNA'):
+    '''Perform a fast reverse complement of a nucleic acid strand
+    seq: Nucleic acid sequence to be used as the sense strand
+    seqtype: if "RNA" the expect and return "U" and not "T"
+    return: reverse complement of the starting string
+    
+    caveats:
+    - Unrecognized characters are not modified
+    - Cannot transform DNA into RNA or vice versa
+    '''
     if seqtype == "RNA" or "U" in seq:
          return seq.translate(rna_table)[::-1]
     return seq.translate(dna_table)[::-1]
 
 
-# test variables
-seq1 = "ATGCAGCTGTGTTACGCGAT"
-seq2 = "UGGCGGAUAAGCGCA"
-seq3 = "TYHGGHHHHH"
+# Because rev_comp_6 is the "best" we want that to be the default
+rev_comp = rev_comp_6
 
-output = "The reverse complementary strand of"
-for seq in [seq1, seq2, seq3]:
-    output += f",\t{seq}"
-print(output)
-import timeit
-for index, rev_comp in enumerate([rev_comp_1, rev_comp_2, rev_comp_3, rev_comp_4, rev_comp_5, rev_comp_6]):
-    output = f"                          method {index+1}:"
+if __name__ == "__main__":
+    import timeit
+    # test variables
+    seq1 = "ATGCAGCTGTGTTACGCGAT"
+    seq2 = "UGGCGGAUAAGCGCA"
+    seq3 = "TYHGGHHHHH"
+
+    output = "The reverse complementary strand of"
     for seq in [seq1, seq2, seq3]:
-        output += f",\t{rev_comp(seq)}"
-    timeit_statement = f"rev_comp_{index+1}('{seq1}')"
-    timeit_setup = f"from __main__ import rev_comp_{index+1}"
-    output += f",\t{timeit.timeit(timeit_statement, number=100000, setup=timeit_setup)}"
+        output += f",\t{seq}"
     print(output)
+    for rev_comp_func in [
+            rev_comp, rev_comp_4, rev_comp_1, rev_comp_3, rev_comp_5, rev_comp_2]:
+        output = f"                          {rev_comp_func.__name__}:"
+        for seq in [seq1, seq2, seq3]:
+            output += f",\t{rev_comp_func(seq)}"
+        timeit_statement = f"{rev_comp_func.__name__}('{seq1}')"
+        timeit_setup = f"from __main__ import {rev_comp_func.__name__}"
+        output += f",\t{timeit.timeit(timeit_statement, number=100000, setup=timeit_setup)}"
+        print(output)
