@@ -1,6 +1,8 @@
 def verify(sequence):
     '''This code verifies if a sequence is a DNA or RNA'''
-     
+    if "U" in sequence:
+        return "RNA"
+    return "DNA"
     # set the input sequence
     seq = set(sequence)
      
@@ -20,8 +22,8 @@ def verify(sequence):
 def rev_comp_1(seq):
     '''This function returns a reverse complement
     of a DNA or RNA strand'''
-    verified = verify(seq)
-    if verified == "DNA":
+    #verified = verify(seq)
+    if "T" in seq: #verified == "DNA":
        
         # complement strand
         seq = seq.replace("A", "t").replace(
@@ -32,18 +34,18 @@ def rev_comp_1(seq):
         seq = seq[::-1]
         return seq
  
-    elif verified == "RNA":
+    #elif verified == "RNA":
        
         # complement strand
-        seq = seq.replace("A", "u").replace(
+    seq = seq.replace("A", "u").replace(
             "C", "g").replace("U", "a").replace("G", "c")
-        seq = seq.upper()
+    seq = seq.upper()
          
         # reverse strand
-        seq = seq[::-1]
-        return seq
-    else:
-        return "Invalid sequence"
+    seq = seq[::-1]
+    return seq
+    #else:
+    #    return "Invalid sequence"
  
 def rev_comp_2(seq):
      comp = []
@@ -114,6 +116,15 @@ def rev_comp_5(seq):
         bases = bases.replace(v,k)
     return bases
     
+
+dna_table = str.maketrans("ACGTMRWSYKVHDBN acgtmrwsykvhdbn","TGCAKYWSRMBDHVN tgcakywsrmbdhvn")
+rna_table = str.maketrans("ACGUMRWSYKVHDBN acgumrwsykvhdbn","UGCAKYWSRMBDHVN ugcakywsrmbdhvn")
+def rev_comp_6(seq, seqtype=None):
+    if seqtype == "RNA" or "U" in seq:
+         return seq.translate(rna_table)[::-1]
+    return seq.translate(dna_table)[::-1]
+
+
 # test variables
 seq1 = "ATGCAGCTGTGTTACGCGAT"
 seq2 = "UGGCGGAUAAGCGCA"
@@ -123,8 +134,12 @@ output = "The reverse complementary strand of"
 for seq in [seq1, seq2, seq3]:
     output += f",\t{seq}"
 print(output)
-for index, rev_comp in enumerate([rev_comp_1, rev_comp_2, rev_comp_3, rev_comp_4, rev_comp_5]):
+import timeit
+for index, rev_comp in enumerate([rev_comp_1, rev_comp_2, rev_comp_3, rev_comp_4, rev_comp_5, rev_comp_6]):
     output = f"                          method {index+1}:"
     for seq in [seq1, seq2, seq3]:
         output += f",\t{rev_comp(seq)}"
+    timeit_statement = f"rev_comp_{index+1}('{seq1}')"
+    timeit_setup = f"from __main__ import rev_comp_{index+1}"
+    output += f",\t{timeit.timeit(timeit_statement, number=100000, setup=timeit_setup)}"
     print(output)
