@@ -48,7 +48,8 @@ def expand_4(seq):
 
 
 def compare_expand():
-    degen = "NATHANRRRRR"
+    degen = "NATHAN"
+    print(f"### Comapring Different 'Expand' functions ###")
     for expand_func in [expand_3, expand_2, expand_4, expand_1]:
         timeit_statement = f"{expand_func.__name__}('{degen}')"
         timeit_setup = f"from __main__ import {expand_func.__name__}"
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         if pathlib.Path(sys.argv[1]).exists():
             # open the file
             with open(pathlib.Path(sys.argv[1]), 'r') as seq_file:
-                seq1 = seq_file.read
+                seq1 = seq_file.read()
         # if what we pas is not a file, treat it as a sequence
         else:
             seq1 = sys.argv[1]
@@ -73,6 +74,6 @@ if __name__ == "__main__":
     else:
         seq1 = "TAGTCGCCTGAAGCC"
     rc1 = revcomp.rev_comp(seq1)
-    print(rc1)
+    print(f"### Original ###\n{seq1}\n### Rev Comp ###\n{rc1}\n")
 
     compare_expand()
